@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pro 2026 Mission Planner</title>
+  <style>
+    body { font-family: Arial; margin:0; background:#f3f4f6; }
+    header { background:#111827; color:white; padding:15px; text-align:center; }
+    .container { max-width:1000px; margin:auto; padding:20px; }
+    .box { background:white; padding:15px; border-radius:10px; margin-bottom:15px; box-shadow:0 2px 6px rgba(0,0,0,0.1);} 
+    input, textarea, select, button { width:100%; padding:10px; margin-top:10px; border-radius:6px; border:1px solid #ccc; }
+    button { background:#2563eb; color:white; border:none; cursor:pointer; }
+    .task { background:#e0f2fe; padding:10px; border-radius:6px; margin-top:10px; }
+    .done { text-decoration:line-through; background:#d1fae5; }
+    .progress { font-weight:bold; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>🔥 PRO 2026 Daily Mission Planner</h1>
+  <p>UPSC | Study | Job Routine System</p>
+</header>
+
+<div class="container">
+
+  <div class="box">
+    <h2>Add Daily Mission</h2>
+    <input type="date" id="date">
+    <select id="type">
+      <option value="Study">Study</option>
+      <option value="UPSC">UPSC</option>
+      <option value="Job">Job</option>
+      <option value="Fitness">Fitness</option>
+    </select>
+    <textarea id="taskInput" placeholder="Enter your mission..."></textarea>
+    <button onclick="addTask()">Add Task</button>
+  </div>
+
+  <div class="box">
+    <h2>📊 Progress Tracker</h2>
+    <p class="progress" id="progress"></p>
+  </div>
+
+  <div class="box">
+    <h2>💡 Daily Motivation</h2>
+    <p id="quote"></p>
+  </div>
+
+  <div class="box">
+    <h2>📅 All Tasks</h2>
+    <div id="taskList"></div>
+  </div>
+
+</div>
+
+<script>
+let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+const quotes = [
+  "Discipline beats motivation.",
+  "Small steps daily = big success.",
+  "UPSC is not tough, consistency is.",
+  "No excuses, just results.",
+  "Focus on goal, not distractions."
+];
+
+document.getElementById('quote').innerText = quotes[Math.floor(Math.random()*quotes.length)];
+
+function addTask(){
+  const date = document.getElementById('date').value;
+  const text = document.getElementById('taskInput').value;
+  const type = document.getElementById('type').value;
+
+  if(!date || !text) return alert('Fill all fields');
+
+  tasks.push({date,text,type,done:false});
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+  document.getElementById('taskInput').value='';
+  displayTasks();
+}
+
+function displayTasks(){
+  const list = document.getElementById('taskList');
+  list.innerHTML='';
+
+  let doneCount=0;
+
+  tasks.forEach((t,i)=>{
+    if(t.done) doneCount++;
+
+    const div=document.createElement('div');
+    div.className='task '+(t.done?'done':'');
+    div.innerHTML=`
+      <b>${t.date}</b> [${t.type}]<br>
+      ${t.text}
+      <br>
+      <button onclick="toggleDone(${i})">✔ Done</button>
+      <button onclick="deleteTask(${i})">❌ Delete</button>
+    `;
+    list.appendChild(div);
+  });
+
+  let percent = tasks.length? Math.round((doneCount/tasks.length)*100):0;
+  document.getElementById('progress').innerText = `Completed: ${percent}%`;
+}
+
+function toggleDone(i){
+  tasks[i].done = !tasks[i].done;
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+  displayTasks();
+}
+
+function deleteTask(i){
+  tasks.splice(i,1);
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+  displayTasks();
+}
+
+displayTasks();
+</script>
+</body>
+</html>
